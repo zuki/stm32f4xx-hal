@@ -112,7 +112,7 @@ required-features = ["rt", "stm32f407"]
 
 [[example]]
 name = "dwt-blinky"
-required-features = ["rt", "stm32f429"]
+required-features = ["rt", "stm32f407"]
 
 [[example]]
 name = "ssd1306-image"

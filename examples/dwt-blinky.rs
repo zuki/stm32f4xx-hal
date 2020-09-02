@@ -19,10 +19,10 @@ fn main() -> ! {
         stm32::Peripherals::take(),
         cortex_m::peripheral::Peripherals::take(),
     ) {
-        // Set up the LEDs. On the STM32F429I-DISC[O1] they are connected to pin PG13/14.
-        let gpiog = dp.GPIOG.split();
-        let mut led1 = gpiog.pg13.into_push_pull_output();
-        let mut led2 = gpiog.pg14.into_push_pull_output();
+        // Set up the LEDs. On the STM32F4Discovery they are connected to pin PD12(Green)/PG13(Orange).
+        let gpiod = dp.GPIOD.split();
+        let mut led1 = gpiod.pd12.into_push_pull_output();
+        let mut led2 = gpiod.pd13.into_push_pull_output();
 
         // Set up the system clock. We want to run at 48MHz for this one.
         let rcc = dp.RCC.constrain();
