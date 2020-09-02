@@ -23,10 +23,16 @@ use panic_semihosting as _;
 use cortex_m_rt::ExceptionFrame;
 use cortex_m_rt::{entry, exception};
 use embedded_graphics::{
-    fonts::Font6x8, fonts::Text, pixelcolor::BinaryColor, prelude::*, style::TextStyleBuilder,
+    fonts::Font6x8,
+    fonts::Text,
+    pixelcolor::Rgb565,
+    prelude::*,
+    style::TextStyleBuilder,
 };
 
-use ssd1306::{prelude::*, Builder as SSD1306Builder};
+use ssd1331::{DisplayRotation::Rotate0, Ssd1331};
+
+use hal::spi::{Spi, Mode, Phase, Polarity};
 
 use hal::{i2c::I2c, prelude::*, stm32};
 use rand_core::RngCore;
@@ -63,17 +69,38 @@ fn main() -> ! {
 
         let mut delay_source = hal::delay::Delay::new(cp.SYST, clocks);
 
-        // Set up I2C1: SCL is PB8 and SDA is PB9; they are set to Alternate Function 4
-        // as per the STM32F407 datasheet. Pin assignment as per the
-        // stm32f4-discovery (ST32F407G-DISC1) board.
+        //spi2
+        //sck  - pb13
+        //miso - pb14 (not wired)
+        //mosi(sda) - pb15
+        //cs - pb11
+        //dc - pb1
+        //rst - pb0
         let gpiob = dp.GPIOB.split();
-        let scl = gpiob.pb8.into_alternate_af4().set_open_drain();
-        let sda = gpiob.pb9.into_alternate_af4().set_open_drain();
-        let i2c = I2c::i2c1(dp.I2C1, (scl, sda), 400.khz(), clocks);
+        let sck = gpiob.pb13.into_alternate_af5().internal_pull_up(false);
+        let miso = gpiob.pb14.into_alternate_af5().internal_pull_up(false);
+        let mosi = gpiob.pb15.into_alternate_af5().internal_pull_up(false);
+        let mut rst = gpiob.pb0.into_push_pull_output();
+        let dc = gpiob.pb1.into_push_pull_output();
+        let mut chip_select = gpiob.pb11.into_push_pull_output();
+        chip_select.set_low().ok();
+
+        let spi = Spi::spi2(
+            dp.SPI2,
+            (sck, miso, mosi),
+            Mode {
+                polarity: Polarity::IdleLow,
+                phase: Phase::CaptureOnFirstTransition,
+            },
+            8.mhz().into(),
+            clocks,
+        );
 
         // Set up the display
-        let mut disp: GraphicsMode<_> = SSD1306Builder::new().connect_i2c(i2c).into();
+        let mut disp = Ssd1331::new(spi, dc, Rotate0);
+        disp.reset(&mut rst, &mut delay_source).unwrap();
         disp.init().unwrap();
+        disp.flush().unwrap();
 
         // enable the RNG peripheral and its clock
         // this will panic if the clock configuration is unsuitable
@@ -89,7 +116,7 @@ fn main() -> ! {
             format_buf.clear();
             if fmt::write(&mut format_buf, format_args!("{}", rand_val)).is_ok() {
                 let text_style = TextStyleBuilder::new(Font6x8)
-                    .text_color(BinaryColor::On)
+                    .text_color(Rgb565::WHITE)
                     .build();
 
                 Text::new(format_buf.as_str(), Point::new(HINSET_PIX, VCENTER_PIX))
@@ -99,7 +126,7 @@ fn main() -> ! {
             }
             disp.flush().unwrap();
             //delay a little while between refreshes so the display is readable
-            delay_source.delay_ms(100u8);
+            delay_source.delay_ms(1000u16);
         }
     }
 
