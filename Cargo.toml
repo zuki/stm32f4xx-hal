@@ -108,7 +108,7 @@ required-features = ["rt", "stm32f405", "sdio"]
 
 [[example]]
 name = "delay-blinky"
-required-features = ["rt", "stm32f411"]
+required-features = ["rt", "stm32f407"]
 
 [[example]]
 name = "dwt-blinky"

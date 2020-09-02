@@ -18,9 +18,9 @@ fn main() -> ! {
         stm32::Peripherals::take(),
         cortex_m::peripheral::Peripherals::take(),
     ) {
-        // Set up the LED. On the Nucleo-446RE it's connected to pin PA5.
-        let gpioa = dp.GPIOA.split();
-        let mut led = gpioa.pa5.into_push_pull_output();
+        // Set up the LED. On the STM32F4Discovery it's connected to pin PD12 (Green).
+        let gpiod = dp.GPIOD.split();
+        let mut led = gpiod.pd12.into_push_pull_output();
 
         // Set up the system clock. We want to run at 48MHz for this one.
         let rcc = dp.RCC.constrain();
