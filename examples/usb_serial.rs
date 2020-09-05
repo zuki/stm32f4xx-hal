@@ -20,8 +20,9 @@ fn main() -> ! {
 
     let clocks = rcc
         .cfgr
-        .use_hse(25.mhz())
+        .use_hse(8.mhz())
         .sysclk(48.mhz())
+        .pclk1(24.mhz())
         .require_pll48clk()
         .freeze();
 
@@ -60,6 +61,8 @@ fn main() -> ! {
                 for c in buf[0..count].iter_mut() {
                     if 0x61 <= *c && *c <= 0x7a {
                         *c &= !0x20;
+                    } else if 0x41 <= *c && *c <= 0x5a {
+                        *c |= 0x20;
                     }
                 }
 
