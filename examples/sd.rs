@@ -20,7 +20,7 @@ fn main() -> ! {
     let rcc = device.RCC.constrain();
     let clocks = rcc
         .cfgr
-        .use_hse(12.mhz())
+        .use_hse(12.mhz())      // 12MHzでないとsdio.read_block()でエラーが発生
         .require_pll48clk()
         .sysclk(168.mhz())
         .hclk(168.mhz())
