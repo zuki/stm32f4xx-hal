@@ -119,6 +119,10 @@ name = "ssd1306-image"
 required-features = ["rt", "stm32f411"]
 
 [[example]]
+name = "ssd1331-image"
+required-features = ["rt", "stm32f407"]
+
+[[example]]
 name = "stopwatch-with-ssd1306-and-interrupts"
 required-features = ["rt", "stm32f411"]
 
