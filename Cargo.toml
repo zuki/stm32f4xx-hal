@@ -131,6 +131,10 @@ name = "analog-stopwatch-with-spi-ssd1306"
 required-features = ["rt", "stm32f407"]
 
 [[example]]
+name = "analog-stopwatch-with-spi-ssd1331"
+required-features = ["rt", "stm32f407"]
+
+[[example]]
 name = "rng-display"
 required-features = ["rt", "stm32f407"]
 
